@@ -1,0 +1,39 @@
+
+.PHONY: all clean check
+
+LIBRARY = libAESCryptoLinux.a
+
+CXX=g++
+HOSTARCH_FLAGS= -march=$(shell uname -m | tr "_" "-") -DLINUX_HOST_BUILD
+CPPFLAGS = -I$(shell readlink -f .)
+CXXFLAGS = -Wall $(CPPFLAGS) $(HOSTARCH_FLAGS)
+
+SOURCES = \
+	AESCrypto/AES128.cpp \
+	AESCrypto/AES192.cpp \
+	AESCrypto/AES256.cpp \
+	AESCrypto/AESCommon.cpp \
+	AESCrypto/AVRGCCSupplements.cpp \
+	AESCrypto/BlockCipher.cpp \
+	AESCrypto/Crypto.cpp \
+	AESCrypto/Cipher.cpp \
+	AESCrypto/CFB.cpp \
+	SHAHash/Hash.cpp \
+	SHAHash/SHA256.cpp \
+	AESCrypto.cpp \
+	SHAHash.cpp
+OBJECTS = $(patsubst %.cpp,%.o,$(SOURCES))
+
+default: $(LIBRARY)
+
+$(LIBRARY): $(OBJECTS)
+	$(RM) $(LIBRARY)
+	$(AR) cr $(LIBRARY) $(OBJECTS)
+
+clean:
+	$(RM) -f $(OBJECTS) $(LIBRARY)
+
+%.o: %.cpp
+	@echo "[CXXFLAGS]:" $(CXXFLAGS)
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
